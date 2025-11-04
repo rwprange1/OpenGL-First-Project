@@ -18,6 +18,8 @@
 
 #include "Camera.h"
 
+#include "RenderableObject.h"
+#include "Triangle.h"
 
 
 unsigned int make_module(const std::string& filepath, unsigned int module_type);

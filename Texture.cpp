@@ -2,6 +2,11 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+
+Texture::Texture() {
+    this->ID = NULL;
+}
+
 Texture::Texture(const std::string& texturePath, bool flipped, int texture_number, bool alpha_channel) {
     stbi_set_flip_vertically_on_load(flipped);
 

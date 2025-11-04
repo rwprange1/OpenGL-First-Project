@@ -1,0 +1,26 @@
+First we create a new empty project soln.
+
+then create a c++ file
+
+#link libraries (glfw)
+Project
+	Properties
+	(All configurations & x64)
+	C++
+		General
+			Additional Include Directories
+			(Add include folder for opengl check C++ libraries dir for glfw/include)
+			(Add include for glad)
+		Linker
+			General
+				Additional Library Dirs
+				(Add include folder for opengl check C++ libraries dir for lib-vc2022)
+			Input
+				Additional Dependencies
+					(Add lib files in lib-vc2022 select glfw3.lib)
+
+			
+
+
+
+

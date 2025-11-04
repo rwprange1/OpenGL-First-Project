@@ -41,14 +41,29 @@ int main(void){
    
     glClearColor(.75f, .25f, .8f, 1.f);
 
+
+
+    
+
+
+
+
     Shader shader = Shader("vertexShader.txt", "fragmentShader.txt");
     //Texture texture1 = Texture("container.jpg", false, 0, false);
     //Texture texture2 = Texture("awesomeface.png", true, 1, true);
+    
+    Triangle t = Triangle(shader);
+    
     Camera camera = Camera(glm::vec3(3.f, 3.f, 3.f), glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
 
-    shader.use();
-    shader.setInt("texture1", 0);
-    shader.setInt("texture2", 1);
+
+
+
+
+
+   
+    //shader.setInt("texture1", 0);
+    //shader.setInt("texture2", 1);
     camera.build_projection(-1.f, 1.f, -1.f, 1.f, 1.f, 1000.f);
 
     unsigned int viewLoc = glGetUniformLocation(shader.ID, "view");
@@ -64,8 +79,8 @@ int main(void){
 
    
     
-    unsigned int VBO, VAO, EBO;
-    build_axis(VBO, VAO, EBO);
+    //unsigned int VBO, VAO, EBO;
+    //build_axis(VBO, VAO, EBO);
 
     
     
@@ -77,7 +92,7 @@ int main(void){
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
 
-        
+        t.draw();
     
         
 
@@ -89,8 +104,8 @@ int main(void){
 
         // render container
     
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_LINES,0,6);
+        //glBindVertexArray(VAO);
+        //glDrawArrays(GL_LINES,0,6);
 
 
         /**
