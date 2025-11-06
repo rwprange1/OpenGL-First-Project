@@ -5,6 +5,8 @@ RenderableObject::RenderableObject() {
 
 }
 
+
+
 RenderableObject::RenderableObject(Shader s, Texture t){
 	this->t = t;
 	this->s = s;
@@ -16,4 +18,5 @@ void RenderableObject::setShader(Shader s) {
 void  RenderableObject::setTexture(Texture t) {
 	this->t = t;
 }
+
 

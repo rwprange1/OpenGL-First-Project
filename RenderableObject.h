@@ -16,11 +16,15 @@ public:
 	RenderableObject();
 	RenderableObject(Shader s, Texture t);
 	
+	
 
 	void setShader(Shader s);
 	void setTexture(Texture t);
 
-	void draw();
+	virtual void draw() {
+		std::cout << "I am unable to draw\n";
+	}
+
 	void set();
 
 private:

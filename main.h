@@ -20,6 +20,7 @@
 
 #include "RenderableObject.h"
 #include "Triangle.h"
+#include "Square.h"
 
 
 unsigned int make_module(const std::string& filepath, unsigned int module_type);

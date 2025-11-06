@@ -1,17 +1,15 @@
 #pragma once
 #include "RenderableObject.h"
-
-class Triangle : public RenderableObject
+class Square : public RenderableObject
 {
 	public:
 
-		Triangle(Shader s, Texture t);
-		Triangle(Shader s);
+		Square(Shader s, Texture t);
+		Square(Shader s);
 
 		void build();
 		void draw() override;
 		void set();
-
 
 };
 

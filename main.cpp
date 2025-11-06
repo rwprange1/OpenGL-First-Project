@@ -8,7 +8,7 @@ int main(void){
 
     GLFWwindow* window;
 
-
+    std::vector<RenderableObject*> renderableObjects;
 
     /* Initialize the library */
     if (!glfwInit()) {
@@ -53,6 +53,10 @@ int main(void){
     //Texture texture2 = Texture("awesomeface.png", true, 1, true);
     
     Triangle t = Triangle(shader);
+    Square s = Square(shader);
+
+    renderableObjects.push_back(&t);
+    renderableObjects.push_back(&s);
     
     Camera camera = Camera(glm::vec3(3.f, 3.f, 3.f), glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
 
@@ -92,8 +96,9 @@ int main(void){
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
 
-        t.draw();
-    
+        for (auto item : renderableObjects) {
+            item->draw();
+        }
         
 
         //glActiveTexture(texture1.position);
