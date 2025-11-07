@@ -14,14 +14,20 @@
 #include <vector>
 
 #include "Shader.h"
-#include "Texture.h"
+
 
 #include "Camera.h"
 
-#include "RenderableObject.h"
-#include "Triangle.h"
-#include "Square.h"
 
+#include <glm.hpp>
+#include <ext.hpp> // perspective, translate, rotate
+#define GLM_ENABLE_EXPERIMENTAL
+#include <gtx/string_cast.hpp>
+
+#include <filesystem>
+
+#include "Mesh.h"
+#include "Model.h"
 
 unsigned int make_module(const std::string& filepath, unsigned int module_type);
 std::string get_shader_content(const std::string& filepath);

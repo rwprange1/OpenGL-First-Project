@@ -13,19 +13,31 @@ Shader::Shader(const std::string& vertex_filepath, const std::string& fragment_f
 
 
     unsigned int shader = glCreateProgram();
-
+    int i = 0;
     for (const auto val : modules) {
         glAttachShader(shader, val);
+        
+        
     }
     glLinkProgram(shader);
 
 
-    int success;
+    GLint success;
     glGetShaderiv(shader, GL_LINK_STATUS, &success);
-    if (!success) {
-        char errorLog[1024];
-        glGetProgramInfoLog(shader, sizeof(errorLog), NULL, errorLog);
-        std::cout << "Shader Module Linking Error:\n" << errorLog << "\n";
+    if (success != GL_TRUE) {
+        GLint infoLogLength;
+        glGetProgramiv(shader, GL_INFO_LOG_LENGTH, &infoLogLength);
+
+        if (infoLogLength > 0) {
+            std::vector<char> infoLog(infoLogLength);
+            glGetProgramInfoLog(shader, infoLogLength, NULL, infoLog.data());
+            std::cerr << "Shader program linking failed:\n" << infoLog.data() << std::endl;
+        }
+        else {
+            std::cerr << "Shader program linking failed, but no info log available." << std::endl;
+        }
+
+        
     }
     else {
         std::cout << "Shader Linking Successfull:\n";
