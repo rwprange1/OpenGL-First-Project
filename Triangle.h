@@ -5,7 +5,7 @@ class Triangle : public RenderableObject
 {
 	public:
 
-		Triangle(Shader s, Texture t);
+		Triangle(Shader s, Texture1 t);
 		Triangle(Shader s);
 
 		void build();

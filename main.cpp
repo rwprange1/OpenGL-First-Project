@@ -7,6 +7,10 @@ const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
 
+glm::vec3 cameraPos = glm::vec3(2.0, 2.0,2.f);
+glm::vec3 lookAtPoint = glm::vec3(.0f, .0f, .0f);
+glm::vec3 upPoint = glm::vec3(0.f, 1.f, 0.f);
+
 int main(void){
     std::cout << "Hello\n";
     GLFWwindow* window;
@@ -48,13 +52,29 @@ int main(void){
     glEnable(GL_DEPTH_TEST);
     
 
-   Shader shader = Shader("vertexShader.txt", "fragmentShader.txt");
-   Model ourModel("C:\\Users\\richw\\Downloads\\CSStuff\\C++\\OpenGlCube\\backpack\\backpack.obj", true);
+
+
+    Camera cam = Camera(cameraPos, lookAtPoint, upPoint);
+    cam.build_projection(-1.f, 1.f, -1.f, 1.f, 1.0, 10.f);
+    Shader shader = Shader("cube.vs", "cube.fs");
+
+    shader.use();
+    shader.setMat4("model", glm::mat4(1.f));
+    shader.setMat4("view", cam.view);
+    shader.setMat4("projection", cam.projection);
+
+    //cam.cameraSetUniforms(shader);
+    Cube cube = Cube(shader);
+    //Triangle t = Triangle(shader);
+    
+    
   
-   float deltaTime = 0.f;
-   float lastFrame = 0.f;
-   float theta = 0.0f;
-   float rotSpeed = 2.5f;
+   // Model ourModel("C:\\Users\\richw\\Downloads\\CSStuff\\C++\\3D-Models\\sun\\scene.gltf", true);
+  
+    float deltaTime = 0.f;
+    float lastFrame = 0.f;
+    float theta = 0.0f;
+    float rotSpeed = 2.5f;
  
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -74,35 +94,37 @@ int main(void){
 
         // render
         // ------
-        glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+        glClearColor(0.25f, 0.25f, 0.25f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // don't forget to enable shader before setting uniforms
         shader.use();
-
-        // view/projection transformations
-        glm::mat4 projection = glm::perspective(45.f, (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        glm::mat4 view = Camera(glm::vec3(.2f, .5f, 5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)).view;
-        shader.setMat4("projection", projection);
-        shader.setMat4("view", view);
+        
+      
+        
 
         // render the loaded model
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
+        //model = glm::translate(model, glm::vec3(0.0f, -0.2f, 0.0f)); // translate it down so it's at the center of the scene
        
-        model = glm::rotate(model, theta, glm::vec3(0, 1, 0));
+        model = glm::rotate(model, theta, glm::vec3(0, 1, .5));
         
         
-        model = glm::scale(model, glm::vec3(.8f, .8f, .8f));	// it's a bit too big for our scene, so scale it down
-       
+        model = glm::scale(model, glm::vec3(1.5f, 1.5f, 1.5f));	// it's a bit too big for our scene, so scale it down
+        //shader.setMat4("projection", cam.projection);
+
+     
         shader.setMat4("model", model);
-        ourModel.Draw(shader);
+        //ourModel.Draw(shader);
+        cube.draw();
+        //t.draw();
 
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
         glfwPollEvents();
+        ///return 1;
     }
 
    // glDeleteVertexArrays(1, &VAO);

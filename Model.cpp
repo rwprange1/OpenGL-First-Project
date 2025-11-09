@@ -1,8 +1,12 @@
 #include "Model.h"
+#ifndef STB_IMAGE_IMPLEMENTATION
 
-
-#define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+
+#endif 
+
+
+
 
 void Model::Draw(Shader& s) {
 	for (unsigned int i = 0; i < meshes.size(); i++)
@@ -15,7 +19,7 @@ void Model::loadModel(std::string path, bool flipped) {
 	// tell stb_image.h to flip loaded texture's on the y-axis (before loading model).
 	stbi_set_flip_vertically_on_load(flipped);
 
-
+	
 	directory = path.substr(0, path.find_last_of('\\'));
 	std::cout << "Directory: " << directory << std::endl;
 	std::filesystem::path p1(directory);

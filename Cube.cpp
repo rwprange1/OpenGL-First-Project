@@ -1,30 +1,50 @@
-#include "Square.h"
-
-
-
-
-Square::Square(Shader s, Texture1 t) {
+#include "Cube.h"
+Cube::Cube(Shader s, Texture1 t) {
     this->setShader(s);
     this->setTexture(t);
     this->build();
 }
 
-Square::Square(Shader s) {
+Cube::Cube(Shader s) {
     this->setShader(s);
     this->build();
 }
 
 
-void Square::build() {
+void Cube::build() {
+
+    float size = .8f;
     float vertices[] = {
-         0.75f,  0.75f, 0.0f,   // top right
-         0.75f, 0.25f, 0.0f,  // bottom right
-        0.25f, 0.25f, 0.0f,  // bottom left
-        0.25f,  0.75f, 0.0f,   // top left 
+        0.0f,  0.0f, 0.0f,   // 0
+        0.0f, 0.0f, size, // 1
+        0.f, size, 0.f, // 2
+        size, 0.0f, 0.0f, //3
+        0.0f,  size, size, // 4
+
+
+        size, size, 0.f, // 5
+        size, size, size, // 6
+        size, 0.f , size // 7
+        
     };
     unsigned int indices[] = {  // note that we start from 0!
-        0, 1, 3,  // first Triangle
-        1, 2, 3   // second Triangle
+        7,6,5,
+        7,3,5,
+
+        7,1,4,
+        6,7,4,
+
+        0,2,5,
+        0,3,5,
+
+        2,4,0,
+        1,4,0,
+
+        1,7,3,
+        0,1,3,
+
+        2,5,6,
+        2,6,4
     };
 
 
@@ -49,32 +69,28 @@ void Square::build() {
     // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    // remember: do NOT unbind the EBO while a VAO is active as the bound element buffer object IS stored in the VAO; keep the EBO bound.
-    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-    // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
-    // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
-    glBindVertexArray(0);
+  
 
     this->VAO = VAO;
     this->VBO = VBO;
     this->EBO = EBO;
 
 
-    
+
 }
 
 
-void Square::draw() {
+void Cube::draw() {
     this->set();
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 }
 
-void Square::set() {
+void Cube::set() {
     this->s.use();
 
-
+    int vertexColorLocation = glGetUniformLocation(this->s.ID, "uColor");
+    glUniform4f(vertexColorLocation, 1.f, 5.f, 0.f, 0.f);
     glBindVertexArray(this->VAO);
 }
 

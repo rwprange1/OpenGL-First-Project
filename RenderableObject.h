@@ -10,16 +10,16 @@ class RenderableObject
 
 public:
 	Shader s;
-	Texture t;
+	Texture1 t;
 	unsigned int VBO, VAO, EBO;
 	
 	RenderableObject();
-	RenderableObject(Shader s, Texture t);
+	RenderableObject(Shader s, Texture1 t);
 	
 	
 
 	void setShader(Shader s);
-	void setTexture(Texture t);
+	void setTexture(Texture1 t);
 
 	virtual void draw() {
 		std::cout << "I am unable to draw\n";

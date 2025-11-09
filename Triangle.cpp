@@ -1,7 +1,7 @@
 #include "Triangle.h"
 
 
-Triangle::Triangle(Shader s, Texture t) {
+Triangle::Triangle(Shader s, Texture1 t) {
 	this->setShader(s);
 	this->setTexture(t);
 	this->build();
@@ -15,9 +15,9 @@ Triangle::Triangle(Shader s) {
 
 void Triangle::build() {
     float vertices[] = {
-       -.5f, .25f, 0.0, 1.0,
-       -.25f, .25f, 0.0, 1.0,
-       -0.375f, .5f, 0.0, 1.0
+       -.5f, .25f, 0.0,
+       -.25f, .25f, 0.0,
+       -0.375f, .5f, 0.0
 
     };
 
@@ -31,7 +31,7 @@ void Triangle::build() {
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
     // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
@@ -56,8 +56,7 @@ void Triangle::draw() {
 
 void Triangle::set() {
 	this->s.use();
-    int vertexColorLocation = glGetUniformLocation(this->s.ID, "uColor");
-    glUniform4f(vertexColorLocation, 1.f, 0.f, .5f, 0.f);
+ 
     glBindVertexArray(this->VAO);
 
 
