@@ -3,16 +3,22 @@
 
 
 // settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 1000;
+const unsigned int SCR_HEIGHT = 800;
 
 
-glm::vec3 cameraPos = glm::vec3(2.0, 2.0,2.f);
-glm::vec3 lookAtPoint = glm::vec3(.0f, .0f, .0f);
-glm::vec3 upPoint = glm::vec3(0.f, 1.f, 0.f);
+// camera
+Camera camera(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+float lastX = SCR_WIDTH / 2.0f;
+float lastY = SCR_HEIGHT / 2.0f;
+bool firstMouse = true;
+
+// timing
+float deltaTime = 0.0f;	// time between current frame and last frame
+float lastFrame = 0.0f;
 
 int main(void){
-    std::cout << "Hello\n";
+    
     GLFWwindow* window;
 
     // configure global opengl state
@@ -37,7 +43,11 @@ int main(void){
     std::cout << "GLFW started and created a window\n";
     glfwMakeContextCurrent(window);
 
-    //glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::cout << "Couldnt load opengl\n";
@@ -54,14 +64,18 @@ int main(void){
 
 
 
-    Camera cam = Camera(cameraPos, lookAtPoint, upPoint);
-    cam.build_projection(-1.f, 1.f, -1.f, 1.f, 1.0, 10.f);
+    
+
+    camera.defineFrustum(-1.f, 1.f, -1.f, 1.f, 1.0, 100.f);
     Shader shader = Shader("cube.vs", "cube.fs");
+
+    glm::mat4 v = camera.getView();
+    std::cout << "View " << glm::to_string(v) << std::endl;
 
     shader.use();
     shader.setMat4("model", glm::mat4(1.f));
-    shader.setMat4("view", cam.view);
-    shader.setMat4("projection", cam.projection);
+    shader.setMat4("view",v );
+    shader.setMat4("projection", camera.projection);
 
     //cam.cameraSetUniforms(shader);
     Cube cube = Cube(shader);
@@ -70,66 +84,68 @@ int main(void){
     
   
    // Model ourModel("C:\\Users\\richw\\Downloads\\CSStuff\\C++\\3D-Models\\sun\\scene.gltf", true);
-  
-    float deltaTime = 0.f;
-    float lastFrame = 0.f;
-    float theta = 0.0f;
-    float rotSpeed = 2.5f;
- 
+
+    
+
+    float currentFrame;
+    
     /* Loop until the user closes the window */
-    while (!glfwWindowShouldClose(window))
-    {   
-        // per-frame time logic
-         // --------------------
-        float currentFrame = static_cast<float>(glfwGetTime());
-        deltaTime = currentFrame - lastFrame;
-        lastFrame = currentFrame;
-        theta += rotSpeed * deltaTime;
 
+    std::vector<glm::vec3> colors;
+    std::vector<glm::vec3> translations;
+    for (int i = 0; i < 1000; i++) {
+        glm::vec3 color;
+        color.x =  static_cast <float>(rand()) / static_cast <float>(RAND_MAX);
+        color.y = static_cast <float>(rand()) / static_cast <float>(RAND_MAX);
+        color.z = static_cast <float>(rand()) / static_cast <float>(RAND_MAX);
+        colors.push_back(color);
 
+        glm::vec3 trans;
+        trans.x = static_cast <float>(rand()) / static_cast <float>(RAND_MAX/50);
+        trans.y = static_cast <float>(rand()) / static_cast <float>(RAND_MAX / 50);
+        trans.z = static_cast <float>(rand()) / static_cast <float>(RAND_MAX / 50);
 
-        // input
-        // -----
-        processInput(window);
-
-        // render
-        // ------
-        glClearColor(0.25f, 0.25f, 0.25f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        // don't forget to enable shader before setting uniforms
-        shader.use();
-        
-      
-        
-
-        // render the loaded model
-        glm::mat4 model = glm::mat4(1.0f);
-        //model = glm::translate(model, glm::vec3(0.0f, -0.2f, 0.0f)); // translate it down so it's at the center of the scene
-       
-        model = glm::rotate(model, theta, glm::vec3(0, 1, .5));
-        
-        
-        model = glm::scale(model, glm::vec3(1.5f, 1.5f, 1.5f));	// it's a bit too big for our scene, so scale it down
-        //shader.setMat4("projection", cam.projection);
-
-     
-        shader.setMat4("model", model);
-        //ourModel.Draw(shader);
-        cube.draw();
-        //t.draw();
-
-
-        // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-        // -------------------------------------------------------------------------------
-        glfwSwapBuffers(window);
-        glfwPollEvents();
-        ///return 1;
+        translations.push_back(trans);
     }
 
-   // glDeleteVertexArrays(1, &VAO);
-    //glDeleteBuffers(1, &VBO);
     
+    while (!glfwWindowShouldClose(window)) {
+        currentFrame = static_cast<float>(glfwGetTime());
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+        
+        
+        processInput(window);
+
+
+        glClearColor(0.25f, 0.25f, 0.25f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        
+        // activate shader
+        shader.use();
+
+        shader.setMat4("projection", camera.projection);
+        glm::mat4 view = camera.getView();
+        shader.setMat4("view", view);
+
+        
+        for (int i = 0; i < colors.size(); i++) {
+            
+            glm::mat4 model = glm::mat4(1.f);
+            
+            model = glm::translate(model,translations[i]);
+            shader.setMat4("model", model);
+            shader.setVec3("uColor", colors[i]);
+            
+            cube.draw();
+        }
+
+        
+       
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+        std::this_thread::sleep_for(std::chrono::milliseconds(25));
+    }
     
     //glDeleteProgram(shader);
     glfwTerminate();
@@ -147,27 +163,36 @@ int main(void){
 
 
 
-
-
-
-
-
-
-
-
-
-
-// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
-// ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        std::cout << "W\n";
-    }
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        camera.processKeyboard(FORWARD, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        camera.processKeyboard(BACKWARD, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        camera.processKeyboard(LEFT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        camera.processKeyboard(RIGHT, deltaTime);
+
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        camera.processKeyboard(UP, deltaTime);
+
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+        camera.processKeyboard(DOWN, deltaTime);
 }
+
+
+
+
+
+
+
+
+
+
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
@@ -182,3 +207,41 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 
 
+
+
+
+
+// glfw: whenever the mouse moves, this callback is called
+// -------------------------------------------------------
+void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
+{
+    float xpos = static_cast<float>(xposIn);
+    float ypos = static_cast<float>(yposIn);
+
+    float xoffset, yoffset;
+    if (firstMouse)
+    {
+        xoffset = xpos - lastX;
+        yoffset = ypos - lastY;
+        firstMouse = false;
+    }
+    else {
+        xoffset = lastX - xpos;
+        yoffset = ypos - lastY; // reversed since y-coordinates go from bottom to top
+    }
+
+   
+
+    lastX = xpos;
+    lastY = ypos;
+    
+
+    camera.processMouseMovement(xoffset, yoffset);
+}
+
+// glfw: whenever the mouse scroll wheel scrolls, this callback is called
+// ----------------------------------------------------------------------
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    camera.processMouseScroll(static_cast<float>(yoffset));
+}

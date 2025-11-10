@@ -89,8 +89,7 @@ void Cube::draw() {
 void Cube::set() {
     this->s.use();
 
-    int vertexColorLocation = glGetUniformLocation(this->s.ID, "uColor");
-    glUniform4f(vertexColorLocation, 1.f, 5.f, 0.f, 0.f);
+  
     glBindVertexArray(this->VAO);
 }
 

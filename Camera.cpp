@@ -1,60 +1,103 @@
 #include "Camera.h"
 
+using namespace glm;
 
-Camera::Camera(glm::vec3 pos, glm::vec3 look_at_point, glm::vec3 up_point ) {
 
-	//std::cout << "Pos: " << glm::to_string(pos);
-	//std::cout << "\nLoot at point: " << glm::to_string(look_at_point);
-	//std::cout << "\nUp: " << glm::to_string(up_point) <<std::endl;
+Camera::Camera(glm::vec3 pos, glm::vec3 lookAtPoint,  glm::vec3 up_point ) {
 
-	this->camera_position = pos;
-	this->look_at_direction = glm::normalize(pos - look_at_point);
-	this->up_direction = glm::normalize(up_point - pos);
 
-	this->buildAxis();
-	build_view();
+	
+	this->cameraPos = pos;
+	this->worldUp = up_point;
+	
+
+	
+	
+	
+
+
+	buildAxis();
 	
 }
 
+void Camera::defineFrustum(float left, float right, float bottom, float top, float near, float far) {
+	this->left = left;
+	this->right = right;
+	this->bottom = bottom;
+	this->top = top;
+	this->near = near;
+	this->far = far;
+
+	buildProjection();
+}
+
+
+
+
+
+
 
 void Camera::buildAxis() {
-	this->U = glm::normalize(glm::cross(this->look_at_direction, this->up_direction));
-	//std::cout << "U: Vec " << glm::to_string(this->U) << "\n";
+	// calculate the new Front vector
+	glm::vec3 front;
+	front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+	front.y = sin(glm::radians(pitch));
+	front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+	this->front = glm::normalize(front);
 
-	this->V = glm::normalize(glm::cross(this->U, this->look_at_direction));
-	//std::cout << "V: Vec " << glm::to_string(this->V) << "\n";
+	std::cout << "Front: " << to_string(this->front) << std::endl;
+	
+	this->rightV = normalize(cross(this->front, this->worldUp));
+	this->upV = normalize(cross(this->rightV, this->front));
 
-	//std::cout << "N: Vec " << glm::to_string(this->look_at_direction) << "\n";
+	
+	
+
+	build_view();
 }
+
 
 
 
 void Camera::build_view() {
-	glm::mat4 translate = glm::translate(glm::mat4(1.0f), -1.f * this->camera_position);
+	glm::mat4 translate = glm::translate(glm::mat4(1.0f), -1.f * this->cameraPos);
 	translate = glm::transpose(translate);
-	
+
 
 	glm::mat4 rotation = glm::mat4(1.0f);
-	rotation[0][0] = this->U[0];
-	rotation[0][1] = this->U[1];
-	rotation[0][2] = this->U[2];
+	rotation[0][0] = this->rightV[0];
+	rotation[0][1] = this->rightV[1];
+	rotation[0][2] = this->rightV[2];
 
 
-	rotation[1][0] = this->V[0];
-	rotation[1][1] = this->V[1];
-	rotation[1][2] = this->V[2];
+	rotation[1][0] = this->upV[0];
+	rotation[1][1] = this->upV[1];
+	rotation[1][2] = this->upV[2];
 
 
-	rotation[2][0] = this->look_at_direction[0];
-	rotation[2][1] = this->look_at_direction[1];
-	rotation[2][2] = this->look_at_direction[2];
+	rotation[2][0] = this->front[0];
+	rotation[2][1] = this->front[1];
+	rotation[2][2] = this->front[2];
 
-	this->view = glm::transpose(translate * rotation) ;
+
+	this->view = glm::transpose(translate * rotation);
 
 	
 }
+mat4 Camera::getView() {
+	return this->view;
+}
 
-void Camera::build_projection(float left, float right, float bottom, float top, float near, float far){
+
+
+void Camera::buildProjection(){
+
+	
+	float left = this->left * zoom;
+	float right = this->right * zoom;
+	float top = this->top * zoom;
+	float bottom = this->bottom * zoom;
+
 	glm::mat4 mat = glm::mat4(1.0f);
 
 	mat[0][0] = 2 * near / (right - left);
@@ -78,4 +121,67 @@ void Camera::build_projection(float left, float right, float bottom, float top, 
 void Camera::cameraSetUniforms(Shader s) {
 	s.setMat4("projection", this->projection);
 	s.setMat4("view", this->view);
+}
+
+
+void Camera::processMouseScroll(float yoffset)
+{
+
+	this->zoom -= (float)yoffset / 2.f;
+
+
+	if (zoom < 1.0f)
+		zoom = 1.0f;
+	if (zoom > 45.0f)
+		zoom = 45.0f;
+	this->zoom = 1 / this->zoom;
+	buildProjection();
+}
+
+void Camera::processMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch)
+{
+	xoffset *= mouseSensitivity;
+	yoffset *= mouseSensitivity;
+
+	yaw += xoffset;
+	pitch += yoffset;
+
+	
+	if (pitch > 89.0f) {
+		pitch = 89.0f;
+		std::cout << "Flip\n";
+	}
+				
+	if (pitch < -89.0f) {
+		std::cout << "Flip\n";
+		pitch = -89.0f;
+	}
+		
+	
+	
+
+	buildAxis();
+}
+
+void Camera::processKeyboard(Camera_Movement direction, float deltaTime)
+{
+	float velocity = movementSpeed * deltaTime;
+	std::cout << "Velo: " << velocity << std::endl;
+
+	if (direction == FORWARD)
+		cameraPos -= front * velocity;
+	if (direction == BACKWARD)
+		cameraPos += front * velocity;
+	if (direction == LEFT)
+		cameraPos-= rightV * velocity;
+	if (direction == RIGHT)
+		cameraPos += rightV * velocity;
+	if (direction == UP) {
+		cameraPos += worldUp * velocity;
+	}
+	if (direction == DOWN) {
+		cameraPos -= worldUp * velocity;
+	}
+
+	buildAxis();
 }

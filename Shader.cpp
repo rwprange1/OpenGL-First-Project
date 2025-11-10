@@ -128,6 +128,16 @@ void Shader::setFloat(const std::string& name, float value) const{
 
 void Shader::setMat4(const std::string& name, const glm::mat4& mat)
 {   
-    std::cout << "Uniform: " << name << " Matrix value: " << glm::to_string(mat) << std::endl;
+    
     glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
+}
+
+void Shader::setVec4(const std::string& name, const glm::vec4& value)
+{
+    
+    glUniform4fv(glGetUniformLocation(ID, name.c_str()), 1, &value[0]);
+}
+
+void Shader::setVec3(const std::string& name, const glm::vec3& value) {
+    glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1, &value[0]);
 }
