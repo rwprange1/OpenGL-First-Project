@@ -13,7 +13,7 @@ Cube::Cube(Shader s) {
 
 void Cube::build() {
 
-    float size = .8f;
+    float size = 1.f;
     float vertices[] = {
         0.0f,  0.0f, 0.0f,   // 0
         0.0f, 0.0f, size, // 1
@@ -27,7 +27,7 @@ void Cube::build() {
         size, 0.f , size // 7
         
     };
-    unsigned int indices[] = {  // note that we start from 0!
+    unsigned char indices[] = {  // note that we start from 0!
         7,6,5,
         7,3,5,
 
@@ -82,7 +82,7 @@ void Cube::build() {
 
 void Cube::draw() {
     this->set();
-    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, 0);
     glBindVertexArray(0);
 }
 

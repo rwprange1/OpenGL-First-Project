@@ -99,15 +99,20 @@ int main(void){
         color.y = static_cast <float>(rand()) / static_cast <float>(RAND_MAX);
         color.z = static_cast <float>(rand()) / static_cast <float>(RAND_MAX);
         colors.push_back(color);
-
-        glm::vec3 trans;
-        trans.x = static_cast <float>(rand()) / static_cast <float>(RAND_MAX/50);
-        trans.y = static_cast <float>(rand()) / static_cast <float>(RAND_MAX / 50);
-        trans.z = static_cast <float>(rand()) / static_cast <float>(RAND_MAX / 50);
-
-        translations.push_back(trans);
     }
 
+    for (int i = 0; i < 50; i++) {
+        for (int j = 0; j < 20; j++) {
+            glm::vec3 trans;
+            trans.x = (float)i;
+            trans.y = -3;
+            trans.z = (float)j;
+
+            translations.push_back(trans);
+        }
+
+     }
+   
     
     while (!glfwWindowShouldClose(window)) {
         currentFrame = static_cast<float>(glfwGetTime());
