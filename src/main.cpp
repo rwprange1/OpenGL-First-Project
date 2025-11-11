@@ -7,6 +7,7 @@ const unsigned int SCR_WIDTH = 1000;
 const unsigned int SCR_HEIGHT = 800;
 
 
+
 // camera
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 float lastX = SCR_WIDTH / 2.0f;
@@ -18,79 +19,28 @@ float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
 
 int main(void){
-    
-    GLFWwindow* window;
-
-    // configure global opengl state
-    // -----------------------------
-    
-    /* Initialize the library */
-    if (!glfwInit()) {
-        std::cout << "GLFW failed to start";
-        return -1;
-    }
-        
-    
-
-   
-    window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Hello World", NULL, NULL);
-    if (!window){
-        std::cout << "GLFW failed to create a window";
-        glfwTerminate();
-        return -1;
-    }
-
-    std::cout << "GLFW started and created a window\n";
-    glfwMakeContextCurrent(window);
-
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    glfwSetCursorPosCallback(window, mouse_callback);
-    glfwSetScrollCallback(window, scroll_callback);
-
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        std::cout << "Couldnt load opengl\n";
-        glfwTerminate();
-        return -1;
-    }
-
-    std::cout << "OpenGL loaded\n";
-
-   
+    GLFWwindow *window = initGL();
     glClearColor(.75f, .25f, .8f, 1.f);
     glEnable(GL_DEPTH_TEST);
     
+    Shader shader = Shader(
+        "C:\\Users\\richw\\Downloads\\CSStuff\\C++\\OpenGlCube\\shaders\\cube.vs",
+        "C:\\Users\\richw\\Downloads\\CSStuff\\C++\\OpenGlCube\\shaders\\cube.fs"
+    );
 
-
+    Shader textShader = Shader(
+        "C:\\Users\\richw\\Downloads\\CSStuff\\C++\\OpenGlCube\\shaders\\text.vs",
+        "C:\\Users\\richw\\Downloads\\CSStuff\\C++\\OpenGlCube\\shaders\\text.fs"
+    );
 
     
+    Cube cube = Cube(shader);
+    Text text = Text(textShader, static_cast<float> (SCR_WIDTH), static_cast<float> (SCR_HEIGHT));
 
     camera.defineFrustum(-1.f, 1.f, -1.f, 1.f, 1.0, 100.f);
-    Shader shader = Shader("cube.vs", "cube.fs");
-
-    glm::mat4 v = camera.getView();
-    std::cout << "View " << glm::to_string(v) << std::endl;
-
-    shader.use();
-    shader.setMat4("model", glm::mat4(1.f));
-    shader.setMat4("view",v );
-    shader.setMat4("projection", camera.projection);
-
-    //cam.cameraSetUniforms(shader);
-    Cube cube = Cube(shader);
-    //Triangle t = Triangle(shader);
     
     
-  
-   // Model ourModel("C:\\Users\\richw\\Downloads\\CSStuff\\C++\\3D-Models\\sun\\scene.gltf", true);
-
-    
-
     float currentFrame;
-    
-    /* Loop until the user closes the window */
-
     std::vector<glm::vec3> colors;
     std::vector<glm::vec3> translations;
     for (int i = 0; i < 1000; i++) {
@@ -126,6 +76,7 @@ int main(void){
         glClearColor(0.25f, 0.25f, 0.25f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
+        
         // activate shader
         shader.use();
 
@@ -135,16 +86,19 @@ int main(void){
 
         
         for (int i = 0; i < colors.size(); i++) {
-            
             glm::mat4 model = glm::mat4(1.f);
-            
             model = glm::translate(model,translations[i]);
             shader.setMat4("model", model);
             shader.setVec3("uColor", colors[i]);
-            
             cube.draw();
         }
 
+        textShader.use();
+        text.RenderText(glm::to_string(camera.cameraPos), 25.0f, 25.0f, .5f, glm::vec3(1.0, 0.f, 0.f));
+
+        
+        
+       
         
        
         glfwSwapBuffers(window);
@@ -162,6 +116,39 @@ int main(void){
 
 
 
+GLFWwindow* initGL() {
+    GLFWwindow* window;
+    /* Initialize the library */
+    if (!glfwInit()) {
+        std::cout << "GLFW failed to start";
+        exit(-1);
+    }
+
+    window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Hello World", NULL, NULL);
+    if (!window) {
+        std::cout << "GLFW failed to create a window";
+        glfwTerminate();
+        exit(-1);
+    }
+
+    std::cout << "GLFW started and created a window\n";
+    glfwMakeContextCurrent(window);
+
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
+
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        std::cout << "Couldnt load opengl\n";
+        glfwTerminate();
+        exit(-1);
+    }
+
+    std::cout << "OpenGL loaded\n";
+    return window;
+}
 
 
 
@@ -250,3 +237,4 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
     camera.processMouseScroll(static_cast<float>(yoffset));
 }
+

@@ -45,7 +45,7 @@ void Camera::buildAxis() {
 	front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
 	this->front = glm::normalize(front);
 
-	std::cout << "Front: " << to_string(this->front) << std::endl;
+
 	
 	this->rightV = normalize(cross(this->front, this->worldUp));
 	this->upV = normalize(cross(this->rightV, this->front));
@@ -149,11 +149,11 @@ void Camera::processMouseMovement(float xoffset, float yoffset, GLboolean constr
 	
 	if (pitch > 89.0f) {
 		pitch = 89.0f;
-		std::cout << "Flip\n";
+	
 	}
 				
 	if (pitch < -89.0f) {
-		std::cout << "Flip\n";
+	
 		pitch = -89.0f;
 	}
 		
@@ -166,7 +166,7 @@ void Camera::processMouseMovement(float xoffset, float yoffset, GLboolean constr
 void Camera::processKeyboard(Camera_Movement direction, float deltaTime)
 {
 	float velocity = movementSpeed * deltaTime;
-	std::cout << "Velo: " << velocity << std::endl;
+
 
 	if (direction == FORWARD)
 		cameraPos -= front * velocity;
